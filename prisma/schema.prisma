@@ -20,6 +20,7 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  corpClientAcct  corporateClient?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   accounts      Account[]
@@ -27,6 +28,50 @@ model User {
   sites         Site[]
   posts         Post[]
 }
+model Interview {
+  id                       String  @id @default(cuid())
+  userId                   String
+  type                     String
+  provid  er                 String
+  providerAccountId        String
+}
+
+model CorporateClient { 
+  id String @id @default(uuid()) 
+  name String 
+  userAcct User
+  email String @unique 
+  password String 
+  invitations Invitation[] 
+  createdAt DateTime @default(now()) 
+  updatedAt DateTime @updatedAt 
+  } 
+model MockInterview { 
+  id String @id @default(uuid()) 
+  userId String 
+  user User @relation(fields: [userId], references: [id]) 
+  questions Json // Store questions as JSON or define a separate model for detailed question data 
+  results Json // Store results as JSON or in a more structured format 
+  createdAt DateTime @default(now()) 
+} 
+model Invitation { 
+  id String @id @default(uuid()) 
+  email String 
+  invitationCode String @unique 
+  status InvitationStatus @default(PENDING) 
+  userId String? 
+  user User? @relation(fields: [userId], references: [id]) 
+  corporateClientId String 
+  corporateClient CorporateClient @relation(fields: [corporateClientId], references: [id]) 
+  createdAt DateTime @default(now()) 
+  updatedAt DateTime @updatedAt 
+} 
+enum InvitationStatus { 
+  PENDING 
+  ACCEPTED 
+  DECLINED 
+}
+
 
 model Account {
   id                       String  @id @default(cuid())
