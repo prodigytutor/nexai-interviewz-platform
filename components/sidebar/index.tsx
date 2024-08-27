@@ -3,7 +3,7 @@ import {
   LucideIcon,
   LayoutDashboard,
   BadgeDollarSign,
-  CircleUserRound,
+  //CircleUserRound,
   Settings,
   WalletCards,
 } from "lucide-react";
