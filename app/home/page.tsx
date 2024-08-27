@@ -1,4 +1,5 @@
 import { InlineSnippet } from "@/components/form/domain-configuration";
+import { Link } from "@chakra-ui/react";
 import Image from "next/image";
 
 export default function HomePage() {
@@ -12,10 +13,7 @@ export default function HomePage() {
         className="w-48"
       />
       <h1 className="text-white">
-        Edit this page on{" "}
-        <InlineSnippet className="ml-2 bg-blue-900 text-blue-100">
-          app/home/page.tsx
-        </InlineSnippet>
+        <Link href="/login">Get Started</Link>
       </h1>
     </div>
   );

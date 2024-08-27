@@ -7,7 +7,7 @@ import { notFound, redirect } from "next/navigation";
 import { getSiteData } from "@/lib/fetchers";
 import { fontMapper } from "@/styles/fonts";
 import { Metadata } from "next";
-
+import Sidebar from "@/components/sidebar";
 export async function generateMetadata({
   params,
 }: {
@@ -82,6 +82,9 @@ export default async function SiteLayout({
 
   return (
     <div className={fontMapper[data.font]}>
+      <div>
+        <Sidebar />
+      </div>
       <div className="ease left-0 right-0 top-0 z-30 flex h-16 bg-white transition-all duration-150 dark:bg-black dark:text-white">
         <div className="mx-auto flex h-full max-w-screen-xl items-center justify-center space-x-5 px-10 sm:px-20">
           <Link href="/" className="flex items-center justify-center">

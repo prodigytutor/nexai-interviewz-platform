@@ -7,7 +7,7 @@ import {
   Settings,
   WalletCards,
 } from "lucide-react";
-import SidebarItem from "./item";
+import {SidebarItem} from "./item";
 
 interface ISidebarItem {
   name: string;
