@@ -2,7 +2,7 @@ import { unstable_cache } from "next/cache";
 import prisma from "@/lib/prisma";
 import { serialize } from "next-mdx-remote/serialize";
 import { replaceExamples, replaceTweets } from "@/lib/remark-plugins";
-
+import { getSiteIdFromUserId } from "./actions";
 export async function getSiteData(domain: string) {
   const subdomain = domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
     ? domain.replace(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`, "")
@@ -130,4 +130,35 @@ async function getMdxSource(postContents: string) {
   });
 
   return mdxSource;
+}
+
+
+export async function getInterviewData(siteId: string) {
+   return await unstable_cache(
+    async () => {
+      const data = await prisma.mockInterview.findMany({
+        where: {
+          siteId: siteId,
+        },
+        include: {
+          site: {
+            include: {
+              user: true,
+            },
+          },
+        },
+      });
+      console.log("data from getInterviewData", data)
+      if (!data) return null;
+
+      return {
+        ...data,
+      };
+    },
+    [`${siteId}-interview`],
+    {
+      revalidate: 900, // 15 minutes
+      tags: [`${siteId}-interview`],
+    },
+  )();
 }

@@ -13,7 +13,7 @@ export default function HomePage() {
         className="w-48"
       />
       <h1 className="text-white">
-        <Link href="/login">Get Started</Link>
+        <Link href={process.env.NEXTAUTH_URL}>Get Started</Link>
       </h1>
     </div>
   );

@@ -7,7 +7,7 @@ import {
   Settings,
   WalletCards,
 } from "lucide-react";
-import {SidebarItem} from "./item";
+import SidebarItem from "./item";
 
 interface ISidebarItem {
   name: string;
@@ -40,7 +40,7 @@ const items: ISidebarItem[] = [
   {
     name: "Accounts",
     path: "/accounts",
-    icon: CircleUserRound,
+    icon: LayoutDashboard,
   },
   {
     name: "Settings",

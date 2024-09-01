@@ -26,12 +26,22 @@ import Image from "next/image";
 
 const externalLinks = [
   {
-    name: "Read announcement",
+    name: "Product",
+    href: "https://nexai.network",
+    icon: <Megaphone width={18} />,
+  },  
+  {
+    name: "Product Roadmap",
     href: "https://vercel.com/blog/platforms-starter-kit",
     icon: <Megaphone width={18} />,
+  },  
+  {
+    name: "Watch Product Tour",
+    href: "https://demo.vercel.pub",
+    icon: <Layout width={18} />,
   },
   {
-    name: "Star on GitHub",
+    name: "Share on Facebook",
     href: "https://github.com/vercel/platforms",
     icon: <Github width={18} />,
   },
@@ -40,26 +50,7 @@ const externalLinks = [
     href: "https://vercel.com/guides/nextjs-multi-tenant-application",
     icon: <FileCode width={18} />,
   },
-  {
-    name: "View demo site",
-    href: "https://demo.vercel.pub",
-    icon: <Layout width={18} />,
-  },
-  {
-    name: "Deploy your own",
-    href: "https://vercel.com/templates/next.js/platforms-starter-kit",
-    icon: (
-      <svg
-        width={18}
-        viewBox="0 0 76 76"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="py-1 text-black dark:text-white"
-      >
-        <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" fill="currentColor" />
-      </svg>
-    ),
-  },
+
 ];
 
 export default function Nav({ children }: { children: ReactNode }) {
@@ -85,7 +76,7 @@ export default function Nav({ children }: { children: ReactNode }) {
           icon: <ArrowLeft width={18} />,
         },
         {
-          name: "Posts",
+          name: "Interviewz",
           href: `/site/${id}`,
           isActive: segments.length === 2,
           icon: <Newspaper width={18} />,
@@ -128,6 +119,12 @@ export default function Nav({ children }: { children: ReactNode }) {
       {
         name: "Overview",
         href: "/",
+        isActive: segments.length === 0,
+        icon: <LayoutDashboard width={18} />,
+      },
+      {
+        name: "Interviewz",
+        href: "/interviews",
         isActive: segments.length === 0,
         icon: <LayoutDashboard width={18} />,
       },

@@ -9,26 +9,26 @@ export default function OverviewStats() {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
     return [
       ...months.map((month) => ({
-        Month: `${month} 23`,
-        "Total Visitors": random(20000, 170418),
+        Month: `${month} 5`,
+        "Total Interviews": random(2, 170),
       })),
       {
         Month: "Jul 23",
-        "Total Visitors": 170418,
+        "Total Interviews": 18,
       },
     ];
   }, []);
 
-  return (
+  return (   
     <div className="grid gap-6 sm:grid-cols-2">
       <Card className="dark:!bg-stone-900">
-        <Text>Total Visitors</Text>
+        <Text>Total Interviews</Text>
         <Flex
           className="space-x-3 truncate"
           justifyContent="start"
           alignItems="baseline"
         >
-          <Metric className="font-cal">170,418</Metric>
+          <Metric className="font-cal">18</Metric>
           <BadgeDelta
             deltaType="moderateIncrease"
             className="dark:bg-green-900 dark:bg-opacity-50 dark:text-green-400"
@@ -43,7 +43,7 @@ export default function OverviewStats() {
           valueFormatter={(number: number) =>
             `${Intl.NumberFormat("us").format(number).toString()}`
           }
-          categories={["Total Visitors"]}
+          categories={["Total Interviews"]}
           colors={["blue"]}
           showXAxis={true}
           showGridLines={false}

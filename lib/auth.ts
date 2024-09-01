@@ -102,6 +102,33 @@ export function withSiteAuth(action: any) {
   };
 }
 
+export function withInterviewAuth(action: any){
+  return async (
+    formData: FormData | null,
+  ) => {
+    const session = await getSession();
+    if (!session) {
+      return {
+        error: "Not authenticated",
+      };
+    }
+    const mockInterview = await prisma.mockInterview.findUnique({
+      where: {
+        id: mockInterviewId,
+      },
+      include: {
+        site: true,
+      },
+    });
+    if (!mockInterview || mockInterview.userId !== session.user.id) {
+      return {
+        error: "Mock Interview Not Found",
+      };
+    }
+    return action(formData, mockInterview, key);
+  }
+}
+
 export function withPostAuth(action: any) {
   return async (
     formData: FormData | null,

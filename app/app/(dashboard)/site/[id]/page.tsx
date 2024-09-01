@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import Posts from "@/components/posts";
 import CreatePostButton from "@/components/create-post-button";
 
+
 export default async function SitePosts({
   params,
 }: {
@@ -13,12 +14,15 @@ export default async function SitePosts({
   if (!session) {
     redirect("/login");
   }
+
   const data = await prisma.site.findUnique({
     where: {
       id: decodeURIComponent(params.id),
     },
   });
 
+  
+ 
   if (!data || data.userId !== session.user.id) {
     notFound();
   }

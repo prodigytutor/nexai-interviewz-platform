@@ -4,8 +4,12 @@ import { notFound } from "next/navigation";
 import BlurImage from "@/components/blur-image";
 import { placeholderBlurhash, toDateString } from "@/lib/utils";
 import BlogCard from "@/components/blog-card";
-import { getPostsForSite, getSiteData } from "@/lib/fetchers";
+import { getInterviewData, getPostsForSite, getSiteData } from "@/lib/fetchers";
 import Image from "next/image";
+import MockInterviewList from "@/components/mock-interview-list";
+import { getSiteIdFromUserId } from "@/lib/actions";
+import { getSession } from "@/lib/auth";
+import { ChakraProvider, Box, Heading } from '@chakra-ui/react';
 
 export async function generateStaticParams() {
   const allSites = await prisma.site.findMany({
@@ -38,10 +42,18 @@ export default async function SiteHomePage({
 }: {
   params: { domain: string };
 }) {
+  const session = await getSession();
+if (!session?.user) {
+  notFound(); 
+  return;
+}
+  const userId = session?.user?.id;
+  const siteId = await getSiteIdFromUserId(userId) || '';
   const domain = decodeURIComponent(params.domain);
-  const [data, posts] = await Promise.all([
+  const [data, posts, interviews] = await Promise.all([
     getSiteData(domain),
     getPostsForSite(domain),
+    getInterviewData(siteId)
   ]);
 
   if (!data) {
@@ -50,7 +62,17 @@ export default async function SiteHomePage({
 
   return (
     <>
-      <div className="mb-20 w-full">
+    <div>
+    <ChakraProvider>
+      <Box p="6">
+        <Heading as="h1" size="xl" mb="6">
+          Mock Interviews
+        </Heading>
+        <MockInterviewList interviews={interviews} />
+      </Box>
+    </ChakraProvider>
+    </div>
+      {/* <div className="mb-20 w-full">
         {posts.length > 0 ? (
           <div className="mx-auto w-full max-w-screen-xl md:mb-28 lg:w-5/6">
             <Link href={`/${posts[0].slug}`}>
@@ -133,7 +155,7 @@ export default async function SiteHomePage({
             ))}
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 }

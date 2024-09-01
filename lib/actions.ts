@@ -1,9 +1,9 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { Post, Site } from "@prisma/client";
+import { Post, Site, MockInterview } from "@prisma/client";
 import { revalidateTag } from "next/cache";
-import { withPostAuth, withSiteAuth } from "./auth";
+import { withPostAuth, withSiteAuth, withInterviewAuth } from "./auth";
 import { getSession } from "@/lib/auth";
 import {
   addDomainToVercel,
@@ -12,15 +12,25 @@ import {
   // removeDomainFromVercelTeam,
   validDomainRegex,
 } from "@/lib/domains";
+import { interviewPromptSystem } from "@/lib/prompts";
 import { put } from "@vercel/blob";
 import { customAlphabet } from "nanoid";
 import { getBlurDataURL } from "@/lib/utils";
+import generatePrompts from "@/utils/openai";
+
 
 const nanoid = customAlphabet(
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
   7,
 ); // 7-character random string
-
+async function canCreateAnotherSite(userId: string): Promise<boolean> {
+  const existingSite = await prisma.site.findFirst({
+    where: {
+      userId: userId,
+    },
+  });
+  return !existingSite;
+}
 export const createSite = async (formData: FormData) => {
   const session = await getSession();
   if (!session?.user.id) {
@@ -28,10 +38,14 @@ export const createSite = async (formData: FormData) => {
       error: "Not authenticated",
     };
   }
-  const name = formData.get("name") as string;
+  if (!canCreateAnotherSite(session?.user.id)){
+    return {
+      error: "Individual users can have only 1 interview site!"
+    }
+  }
+ const name = formData.get("name") as string;
   const description = formData.get("description") as string;
   const subdomain = formData.get("subdomain") as string;
-
   try {
     const response = await prisma.site.create({
       data: {
@@ -248,13 +262,73 @@ export const createPost = withSiteAuth(async (_: FormData, site: Site) => {
     },
   });
 
-  await revalidateTag(
-    `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-posts`,
-  );
-  site.customDomain && (await revalidateTag(`${site.customDomain}-posts`));
+});
+
+// Function to get siteId for a given userId
+export const getSiteIdFromUserId = async (userId: string): Promise<string | null> => {
+  try {
+    const site = await prisma.site.findFirst({
+      where: {
+        userId: userId,
+      },
+      select: {
+        id: true,
+      },
+    });
+    return site?.id || null;
+  } catch (error: any) {
+    console.error("Error fetching siteId:", error);
+    return null;
+  }
+};
+
+  export const createInterview = async (formData: FormData) => {
+    const session = await getSession();
+    if (!session?.user.id) {
+      return {
+        error: "Not authenticated",
+      };
+    }
+    const siteId = await getSiteIdFromUserId(session.user.id);
+    if (!siteId) {
+      return {
+        error: "No site found for this user",
+      }
+    } 
+  
+    const userId = session?.user.id;
+    const user = getUser(userId);
+    console.log("site", siteId)
+    const role = formData.get("role") as string;
+    console.log("role", role)    
+    const topic = formData.get("topic") as string;
+    console.log("topic", topic)
+    const experienceValue = formData.get("experience");
+    const experience = experienceValue ? parseInt(experienceValue as string) : 5;
+    console.log("experience", experience)
+    const prompt = interviewPromptSystem({numQuestions: "20", title: role, description: topic, experience: experience});
+    const responseQuestions = await generatePrompts("gpt-4o-mini", prompt)
+    console.log("responseQuestions", responseQuestions)
+    const questions = JSON.parse(JSON.stringify(responseQuestions))
+    console.log("questions", questions)
+    const response = await prisma.mockInterview.create({
+        data: {
+          siteId: siteId,
+          userId: userId,
+          topic: topic,
+          role: role,
+          questions: questions,
+          experience: experience,
+        },
+    });
+
+  // await revalidateTag(
+  //   `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-posts`,
+  // );
+  // site.customDomain && (await revalidateTag(`${site.customDomain}-posts`));
 
   return response;
-});
+};
 
 // creating a separate function for this because we're not using FormData
 export const updatePost = async (data: Post) => {
@@ -395,6 +469,27 @@ export const deletePost = withPostAuth(async (_: FormData, post: Post) => {
     };
   }
 });
+export const getUser = async(
+  id: string
+) => {
+  const session = await getSession();
+  if (!session?.user.id) {
+    return {
+      error: "Not authenticated",
+    };
+  }
+  try {
+    const response = await prisma.user.findFirst({
+      where: {
+        id: session.user.id,
+      }
+    })
+    return response;
+  } catch(error) {
+      console.error(error)
+      return error;
+  }    
+}
 
 export const editUser = async (
   formData: FormData,

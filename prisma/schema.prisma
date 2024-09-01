@@ -30,13 +30,6 @@ model User {
   sites         Site[]
   posts         Post[]
 }
-model Interview {
-  id                       String  @id @default(cuid())
-  userId                   String
-  type                     String
-  provider                 String
-  providerAccountId        String
-}
 
 model CorporateClient { 
   id String @id @default(uuid()) 
@@ -49,13 +42,20 @@ model CorporateClient {
   createdAt DateTime @default(now()) 
   updatedAt DateTime @updatedAt 
   } 
+
 model MockInterview { 
   id String @id @default(uuid()) 
-  userId String 
-  user User @relation(fields: [userId], references: [id]) 
-  questions Json // Store questions as JSON or define a separate model for detailed question data 
-  results Json // Store results as JSON or in a more structured format 
+  userId String? 
+  user User? @relation(fields: [userId], references: [id]) 
+  role String
+  topic String
+  experience Int? @default(5) 
+  questions Json? // Store questions as JSON or define a separate model for detailed question data 
+  results Json? // Store results as JSON or in a more structured format 
   createdAt DateTime @default(now()) 
+  updatedAt DateTime @updatedAt @default(now())
+  siteId String 
+  site Site @relation(fields: [siteId], references: [id]) 
 } 
 model Invitation { 
   id String @id @default(uuid()) 
@@ -64,8 +64,10 @@ model Invitation {
   status InvitationStatus @default(PENDING) 
   userId String? 
   user User? @relation(fields: [userId], references: [id]) 
-  corporateClientId String 
-  corporateClient CorporateClient @relation(fields: [corporateClientId], references: [id]) 
+  siteId String 
+  site Site @relation(fields: [siteId], references: [id]) 
+  corporateClientId String? 
+  corporateClient CorporateClient? @relation(fields: [corporateClientId], references: [id]) 
   createdAt DateTime @default(now()) 
   updatedAt DateTime @updatedAt 
 } 
@@ -155,6 +157,9 @@ model Site {
   user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId        String?
   posts         Post[]
+  interviews    MockInterview[]
+  invitations   Invitation[]
+
 
   @@index([userId])
 }
