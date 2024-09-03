@@ -76,6 +76,23 @@ export const createSite = async (formData: FormData) => {
   }
 };
 
+export const getInterviewDetails = async (id: string) => {
+  try {
+      const result = await prisma.mockInterview.findFirst({
+          where: { id: id },
+      })
+      console.warn("results from GetInterviewData", result)
+      if (!result) {
+          console.error("No data found for specified Mock Interview")
+          return;
+      }
+      return result;
+  } catch (error) {
+      console.error("Error fetching interview details:", error);
+      return error;
+  }
+}
+
 export const updateSite = withSiteAuth(
   async (formData: FormData, site: Site, key: string) => {
     const value = formData.get(key) as string;
