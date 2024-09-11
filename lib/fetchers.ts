@@ -148,7 +148,7 @@ export async function getInterviewData(siteId: string) {
           },
         },
       });
-      console.log("data from getInterviewData", data)
+      //console.log("data from getInterviewData", data)
       if (!data) return null;
 
       return {

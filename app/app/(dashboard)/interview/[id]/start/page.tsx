@@ -3,48 +3,43 @@ import InterviewQAComponent from '@/components/interview-qa-component';
 import { JsonArray } from '@prisma/client/runtime/library';
 import React, { useEffect, useState, useCallback } from 'react';
 import prisma from '@/lib/prisma'; // Ensure you have the correct path to your prisma instance
+import { getInterviewDetails } from '@/lib/actions';
 
 type Props = {
     id: string;
 };
 
-type InterviewData = {
-    questions: JsonArray;
-};
-
-export default function InterviewStartPage({ id }: Props) {
+interface InterviewQuestion {
+    question: string;
+    answer: string;
+  }
+  
+  interface InterviewData {
+    interview_questions: InterviewQuestion[] | null;
+  }
+export default function InterviewStartPage({ params }: { params: { id: string } }) {
     const [interviewData, setInterviewData] = useState<InterviewData | null>(null);
-    const [mockInterviewQuestion, setMockInterviewQuestion] = useState<JsonArray | null>(null);
+    const [mockInterviewQuestion, setMockInterviewQuestion] = useState<InterviewQuestion[] | null>(null);
     const [activeQuestionIndex, setActiveQuestionIndex] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(true);
-
-    const GetInterviewDetails = useCallback(async () => {
-        try {
-            const result = await prisma?.mockInterview.findFirst({
-                where: {
-                    id: id,
-                },
-            });
-
-            const jsonMockResp = result?.questions || [];
-            console.log(jsonMockResp);
-            setMockInterviewQuestion(jsonMockResp);
-            setInterviewData(result);
-        } catch (error) {
-            console.error('Failed to fetch interview details:', error);
-        } finally {
-            setLoading(false);
-        }
-    }, [id]);
-
+console.log("in the interview start page function")
+    const effectHandler = async()=>{
+        const resultGen = await getInterviewDetails(params.id);
+        //console.log("the value of id is", params.id)
+        //console.log("the value of resultGen is", resultGen)
+        const result = JSON.parse(JSON.stringify(resultGen || []))
+        console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        console.log("results are", result)
+        setInterviewData(result)
+        setMockInterviewQuestion(result?.questions || [])
+       }
     useEffect(() => {
-        setLoading(true);
-        GetInterviewDetails();
-    }, [GetInterviewDetails]);
+        effectHandler()        
+    }, [getInterviewDetails])
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
+    // if (loading) {
+    //     return <div>Loading...</div>;
+    // }
 
     return (
         <div>

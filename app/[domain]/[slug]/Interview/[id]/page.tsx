@@ -14,7 +14,7 @@ export default function Interview({params}) {
     const [interviewData,setInterviewData]=useState();
     const [webCamEnabled,setWebCamEnabled]=useState();
     useEffect(()=>{
-        console.log(params.Id)
+        //console.log(params.Id)
         GetInterviewDetails();
     },[])
 

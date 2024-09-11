@@ -76,20 +76,20 @@ export const createSite = async (formData: FormData) => {
   }
 };
 
-export const getInterviewDetails = async (id: string) => {
+export const getInterviewDetails = async (id: string): Promise<MockInterview | null> => {
   try {
-      const result = await prisma.mockInterview.findFirst({
+      const result = await prisma.mockInterview.findUnique({
           where: { id: id },
       })
       console.warn("results from GetInterviewData", result)
       if (!result) {
           console.error("No data found for specified Mock Interview")
-          return;
+          return null;
       }
       return result;
   } catch (error) {
       console.error("Error fetching interview details:", error);
-      return error;
+      return null;
   }
 }
 
@@ -207,11 +207,11 @@ export const updateSite = withSiteAuth(
           },
         });
       }
-      console.log(
-        "Updated site data! Revalidating tags: ",
-        `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
-        `${site.customDomain}-metadata`,
-      );
+      //console.log(
+      //  "Updated site data! Revalidating tags: ",
+     //   `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
+      //  `${site.customDomain}-metadata`,
+      //);
       await revalidateTag(
         `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
       );
@@ -315,19 +315,19 @@ export const getSiteIdFromUserId = async (userId: string): Promise<string | null
   
     const userId = session?.user.id;
     const user = getUser(userId);
-    console.log("site", siteId)
+    //console.log("site", siteId)
     const role = formData.get("role") as string;
-    console.log("role", role)    
+    //console.log("role", role)    
     const topic = formData.get("topic") as string;
-    console.log("topic", topic)
+    //console.log("topic", topic)
     const experienceValue = formData.get("experience");
     const experience = experienceValue ? parseInt(experienceValue as string) : 5;
-    console.log("experience", experience)
+    //console.log("experience", experience)
     const prompt = interviewPromptSystem({numQuestions: "20", title: role, description: topic, experience: experience});
     const responseQuestions = await generatePrompts("gpt-4o-mini", prompt)
-    console.log("responseQuestions", responseQuestions)
+    //console.log("responseQuestions", responseQuestions)
     const questions = JSON.parse(JSON.stringify(responseQuestions))
-    console.log("questions", questions)
+    //console.log("questions", questions)
     const response = await prisma.mockInterview.create({
         data: {
           siteId: siteId,
