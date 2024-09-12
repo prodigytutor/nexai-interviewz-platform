@@ -1,62 +1,58 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-
+import RecordAnswerSection from "./RecordAnswerSection";
 interface InterviewQuestion {
   question: string;
   answer: string;
 }
 
-interface InterviewData {
-  interview_questions: InterviewQuestion[] | null;
-}
+type InterviewData = {
+ data: Array<InterviewQuestion>;
+};
 
-export default function InterviewQAComponent({ interview_questions }: InterviewData) {
+export default function InterviewQAComponent({ data }: InterviewData) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  //console.log("interview_questions", interview_questions)
-  //console.log("these are the interview questions", interview_questions)
+console.log("the type of interview questions is", typeof data)
+  // Use useEffect to set error if interview_questions is null or empty
   useEffect(() => {
-    if (!interview_questions || interview_questions.length === 0) {
+    if (!data || data.length === 0) {
       setError("No interview questions available.");
+    } else {
+      setError(null); // Clear error if interview_questions is valid
     }
-  }, [interview_questions]);
+  }, [data]);
 
   const handleNext = () => {
-    try {
-      if (interview_questions && interview_questions.length > 0) {
-        setCurrentIndex((prevIndex) => 
-          (prevIndex + 1) % interview_questions.length
-        );
-      }
-    } catch (err) {
-      setError("An error occurred while navigating to the next question.");
-    }
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % data.length);
   };
 
   const handlePrev = () => {
-    try {
-      if (interview_questions && interview_questions.length > 0) {
-        setCurrentIndex((prevIndex) => 
-          (prevIndex - 1 + interview_questions.length) % interview_questions.length
-        );
-      }
-    } catch (err) {
-      setError("An error occurred while navigating to the previous question.");
-    }
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + data.length) % data.length);
   };
 
   if (error) {
     return <div>Error: {error}</div>;
   }
 
+  // Check if interview_questions is valid before accessing currentIndex
+  if (!data || data.length === 0) {
+    return null;
+  }
+
   return (
     <div>
       <h2>Interview Question</h2>
-      <p>{interview_questions[currentIndex].question}</p>
+      <p>{data[currentIndex].question}</p>
       <h3>Answer</h3>
-      <p>{interview_questions[currentIndex].answer}</p>
+      <p>{data[currentIndex].answer}</p>
       <button onClick={handlePrev}>Previous</button>
       <button onClick={handleNext}>Next</button>
+      <RecordAnswerSection
+       mockInterviewQuestion={data}
+      activeQuestionIndex={currentIndex}
+        interviewData={data}
+      />
     </div>
   );
 };

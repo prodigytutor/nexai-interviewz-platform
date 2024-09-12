@@ -13,3 +13,14 @@ async function generatePrompts(engine: string, prompt: string) {
     return response.choices[0].message.content?.trim();
 }
 export default generatePrompts;
+export async function generateFeedback(engine: string, prompt: string) {
+  const response = await openai.chat.completions.create(
+    {model: engine,
+    messages: [
+      {"role": "system", "content": prompt},
+      {"role": "user", "content": "Please provide feedback and any suggested steps"}
+    ]}
+  )
+  return response.choices[0].message.content?.trim();
+  
+}

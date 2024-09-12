@@ -12,38 +12,51 @@ type Props = {
 interface InterviewQuestion {
     question: string;
     answer: string;
-  }
-  
-  interface InterviewData {
-    interview_questions: InterviewQuestion[] | null;
-  }
+}
+
+interface InterviewData {
+    interview_questions: Array<InterviewQuestion>;
+}
+
 export default function InterviewStartPage({ params }: { params: { id: string } }) {
     const [interviewData, setInterviewData] = useState<InterviewData | null>(null);
-    const [mockInterviewQuestion, setMockInterviewQuestion] = useState<InterviewQuestion[] | null>(null);
+    const [mockInterviewQuestion, setMockInterviewQuestion] = useState<Array<InterviewQuestion>>([]);
     const [activeQuestionIndex, setActiveQuestionIndex] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(true);
-console.log("in the interview start page function")
-    const effectHandler = async()=>{
-        const resultGen = await getInterviewDetails(params.id);
-        //console.log("the value of id is", params.id)
-        //console.log("the value of resultGen is", resultGen)
-        const result = JSON.parse(JSON.stringify(resultGen || []))
-        console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-        console.log("results are", result)
-        setInterviewData(result)
-        setMockInterviewQuestion(result?.questions || [])
-       }
-    useEffect(() => {
-        effectHandler()        
-    }, [getInterviewDetails])
+    const [error, setError] = useState<string | null>(null);
 
-    // if (loading) {
-    //     return <div>Loading...</div>;
-    // }
+    console.log("in the interview start page function");
+
+    const effectHandler = useCallback(async () => {
+        try {
+            const resultGen = await getInterviewDetails(params.id);
+            const result = JSON.parse(JSON.stringify(resultGen || []));
+            console.log("results are", result);
+            setInterviewData(result);
+            setMockInterviewQuestion(result?.questions.interview_questions || []);
+        } catch (err) {
+            console.error("Error fetching interview details:", err);
+            setError("Failed to load interview details. Please try again later.");
+        } finally {
+            setLoading(false);
+        }
+    }, [params.id]);
+
+    useEffect(() => {
+        effectHandler();
+    }, [effectHandler]);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>{error}</div>;
+    }
 
     return (
         <div>
-            <InterviewQAComponent interview_questions={mockInterviewQuestion} />
+            <InterviewQAComponent data={mockInterviewQuestion} />
         </div>
     );
 }

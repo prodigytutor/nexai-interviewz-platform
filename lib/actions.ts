@@ -298,7 +298,25 @@ export const getSiteIdFromUserId = async (userId: string): Promise<string | null
     return null;
   }
 };
+  export const getFeedback = async (prompt: string) => {
+    const session = await getSession();
+    if (!session?.user.id) {
+      return {
+        error: "Not authenticated",
+      };
+    }
+    const siteId = await getSiteIdFromUserId(session.user.id);
+    if (!siteId) {
+      return {
+        error: "No site found for this user",
+      }
+    } 
+  
+    const userId = session?.user.id;
+    const user = getUser(userId);
 
+    
+  }
   export const createInterview = async (formData: FormData) => {
     const session = await getSession();
     if (!session?.user.id) {
