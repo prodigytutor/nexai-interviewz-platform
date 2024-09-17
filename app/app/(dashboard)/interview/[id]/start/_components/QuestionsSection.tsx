@@ -47,7 +47,7 @@ export default function InterviewStartPage({ id }: Props) {
 
     return (
         <div>
-            <InterviewQAComponent interview_questions={mockInterviewQuestion} />
+            <InterviewQAComponent interview_questions={mockInterviewQuestion} mockId={id} />
         </div>
     );
 }

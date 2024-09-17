@@ -1,10 +1,10 @@
 import React from 'react';
 import { SimpleGrid } from '@chakra-ui/react';
 import MockInterviewCard from './mock-interview-card';
-import PropTypes from 'prop-types';
 import { getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-
+import Image from 'next/image'; // Importing Image component
+import prisma from '@/lib/prisma'; // Importing prisma
 
 export default async function MockInterviewList({
   siteId,
@@ -31,7 +31,7 @@ export default async function MockInterviewList({
     ...(limit ? { take: limit } : {}),
   });
 
-  return interviews?.length || 0 > 0 ? (
+  return (interviews?.length || 0) > 0 ? (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {interviews.map((interview) => (
         <MockInterviewCard key={interview.id} data={interview} />
@@ -52,4 +52,3 @@ export default async function MockInterviewList({
     </div>
   );
 };
-

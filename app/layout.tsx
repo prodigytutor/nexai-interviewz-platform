@@ -6,10 +6,10 @@ import { Metadata } from "next";
 import { cn } from "@/lib/utils";
 
 const title =
-  "Platforms Starter Kit – The all-in-one starter kit for building multi-tenant applications.";
+  "NexInterview – The all-in-one AI based mock interview application.";
 const description =
-  "The Platforms Starter Kit is a full-stack Next.js app with multi-tenancy and custom domain support. Built with Next.js App Router, Vercel Postgres and the Vercel Domains API.";
-const image = "https://vercel.pub/thumbnail.png";
+  "AI based mock interview application";
+const image = "/thumbnail.png";
 
 export const metadata: Metadata = {
   title,

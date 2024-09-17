@@ -30,22 +30,27 @@ export default function CreateSiteModal() {
     }));
   }, [data.name]);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    createSite(formData).then((res) => {
+      if (res.error) {
+        console.error(res.error);
+        toast.error(res.error);
+      } else {
+        va.track("Created Site");
+        const { id } = res;
+        router.refresh();
+        router.push(`/site/${id}`);
+        modal?.hide();
+        toast.success(`Successfully created site!`);
+      }
+    });
+  };
+
   return (
     <form
-      action={async (data: FormData) =>
-        createSite(data).then((res: any) => {
-          if (res.error) {
-            toast.error(res.error);
-          } else {
-            va.track("Created Site");
-            const { id } = res;
-            router.refresh();
-            router.push(`/site/${id}`);
-            modal?.hide();
-            toast.success(`Successfully created site!`);
-          }
-        })
-      }
+      onSubmit={handleSubmit}
       className="w-full rounded-md bg-white dark:bg-black md:max-w-md md:border md:border-stone-200 md:shadow dark:md:border-stone-700"
     >
       <div className="relative flex flex-col space-y-4 p-5 md:p-10">

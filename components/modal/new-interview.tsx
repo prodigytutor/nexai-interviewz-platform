@@ -3,13 +3,12 @@
 import { toast } from "sonner";
 import { createInterview } from "@/lib/actions";
 import { useRouter } from "next/navigation";
-import { useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom"; // Verify if this is the correct import
 import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
-import { useModal } from "./provider";
+import { useModal } from "./provider"; // Verify import path
 import va from "@vercel/analytics";
 import { useEffect, useState } from "react";
-
 
 export default function NewInterviewModal() {
   const router = useRouter();
@@ -20,23 +19,30 @@ export default function NewInterviewModal() {
     topic: "",
     experience: "5",
   });
-  
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    createInterview(formData).then((res) => {
+      console.log(formData);
+      if (res.error) {
+        console.log(res.error)
+        toast.error(res.error);
+      } else {
+        console.log("id of new interview", res)
+        va.track("Created Mock Interview");
+        const { id } = res;
+        router.refresh();
+        router.push(`/site/${id}`);
+        modal?.hide();
+        toast.success(`Successfully created site!`);
+      }
+    });
+  };
+
   return (
     <form
-      action={async (data: FormData) =>
-        createInterview(data).then((res: any) => {
-          if (res.error) {
-            toast.error(res.error);
-          } else {
-            va.track("Created Mock Interview");
-            const { id } = res;
-            router.refresh();
-            router.push(`/site/${id}`);
-            modal?.hide();
-            toast.success(`Successfully created site!`);
-          }
-        })
-      }
+      onSubmit={handleSubmit}
       className="w-full rounded-md bg-white dark:bg-black md:max-w-md md:border md:border-stone-200 md:shadow dark:md:border-stone-700"
     >
       <div className="relative flex flex-col space-y-4 p-5 md:p-10">
@@ -44,12 +50,13 @@ export default function NewInterviewModal() {
 
         <div className="flex flex-col space-y-2">
           <label
-            htmlFor="name"
+            htmlFor="role"
             className="text-sm font-medium text-stone-500 dark:text-stone-400"
           >
             Role
           </label>
           <input
+            id="role"
             name="role"
             type="text"
             placeholder="Senior NextJS Developer"
@@ -70,6 +77,7 @@ export default function NewInterviewModal() {
             Job Description
           </label>
           <textarea
+            id="topic"
             name="topic"
             placeholder="Job Description goes here"
             value={data.topic}
@@ -82,20 +90,21 @@ export default function NewInterviewModal() {
 
         <div className="flex flex-col space-y-2">
           <label
-            htmlFor="subdomain"
+            htmlFor="experience"
             className="text-sm font-medium text-stone-500"
           >
             Experience
           </label>
           <div className="flex w-full max-w-md">
             <input
+              id="experience"
               name="experience"
               type="text"
-              placeholder="Job description goes here"
+              placeholder="Years of experience"
               value={data.experience}
               onChange={(e) => setData({ ...data, experience: e.target.value })}
               autoCapitalize="off"
-              pattern="[0-9]+" // only allow lowercase letters, numbers, and dashes
+              pattern="[0-9]+" // only allow numeric values
               maxLength={2}
               required
               className="w-full rounded-l-lg border border-stone-200 bg-stone-50 px-4 py-2 text-sm text-stone-600 placeholder:text-stone-400 focus:border-black focus:outline-none focus:ring-black dark:border-stone-600 dark:bg-black dark:text-white dark:placeholder-stone-700 dark:focus:ring-white"
@@ -105,8 +114,6 @@ export default function NewInterviewModal() {
             </div>
           </div>
         </div>
-
-        
       </div>
       <div className="flex items-center justify-end rounded-b-lg border-t border-stone-200 bg-stone-50 p-3 dark:border-stone-700 dark:bg-stone-800 md:px-10">
         <CreateInterviewFormButton />
@@ -114,8 +121,9 @@ export default function NewInterviewModal() {
     </form>
   );
 }
+
 function CreateInterviewFormButton() {
-  const { pending } = useFormStatus();
+  const { pending } = useFormStatus(); // Verify if this is the correct hook
   return (
     <button
       className={cn(

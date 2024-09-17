@@ -1,14 +1,35 @@
 "use client";
 
 import { useModal } from "@/components/modal/provider";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
+import { getSiteIdFromUserId } from "@/lib/actions";
+import { toast } from "sonner";
 
 export default function CreateInterviewButton({
   children,
+  userid,
 }: {
   children: ReactNode;
+  userid: string;
 }) {
   const modal = useModal();
+  const [site, setSite] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchSite() {
+      const siteId = await getSiteIdFromUserId(userid);
+      if (!siteId) {
+        toast.error("Could not find a site for the logged in user. Please create a default site first!");
+      }
+      setSite(siteId);
+    }
+    fetchSite();
+  }, [userid]);
+
+  if (!site) {
+    return null;
+  }
+
   return (
     <button
       onClick={() => modal?.show(children)}

@@ -33,8 +33,7 @@ export const interviewQuestionFeedbackPrompt = (props: InterviewAnswerFeedbackPr
   return(
   `Question: ${mockInterviewQuestion}, User Answer: ${userAnswer},  Based on the question and user answer for the given interview question 
    please provide a rating for the users answer and feedback as to any areas of improvement if any 
-  in just 3 to 5 sentences. Please provide this feedback in JSON format with rating field and feedback field`;
-  )
+  in just 3 to 5 sentences. Please provide this feedback in JSON format with rating field and a feedback field`);
 }
 
 export const interviewPromptUser = (props: InterviewPromptProps) => {

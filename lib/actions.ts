@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { Post, Site, MockInterview } from "@prisma/client";
+import { Post, Site, MockInterview, UserAnswer } from "@prisma/client";
 import { revalidateTag } from "next/cache";
 import { withPostAuth, withSiteAuth, withInterviewAuth } from "./auth";
 import { getSession } from "@/lib/auth";
@@ -17,7 +17,17 @@ import { put } from "@vercel/blob";
 import { customAlphabet } from "nanoid";
 import { getBlurDataURL } from "@/lib/utils";
 import generatePrompts from "@/utils/openai";
+import moment from "moment";
 
+interface UserAnswerProp{
+  useremail: string
+  mockid: string
+  question: string
+  answer: string
+  userAnswer: string
+  feedback: string
+  rating: string
+}
 
 const nanoid = customAlphabet(
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
@@ -264,6 +274,43 @@ export const getSiteFromPostId = async (postId: string) => {
   });
   return post?.siteId;
 };
+export const UpdateUserAnswer = async (userAnswer: UserAnswerProp): Promise<string | null> => {
+  let retString = ''
+  try {
+ 
+
+    // Assuming result is a string and needs to be parsed
+    const mockJsonResp = userAnswer.feedback?.replace('```json', '').replace('```', '');
+    const JsonFeedbackResp = JSON.parse(mockJsonResp);
+    
+    if (userAnswer.useremail) {
+        const resp = await prisma.UserAnswer.create({
+            data: {
+                mockIdRef: userAnswer.mockid,
+                question: userAnswer.question,
+                correctAns: userAnswer.answer,
+                userAns: userAnswer.userAnswer,
+                feedback: userAnswer.feedback,
+                rating: userAnswer.rating,
+                userEmail: userAnswer.useremail as string, // Type assertion to ensure it's a string
+                createdAt: moment().format('YYYY-MM-DD')
+            }
+        });
+
+        if (resp) {
+          retString = "User Answer Stored"
+          console.log("Succerssful User Answer Update");
+        }
+    } else {
+      return null;
+    }
+} catch (err) {
+    retString = `Error updating user answer OMG: ${err}`
+    console.error(retString);
+} finally {
+  return Promise.resolve(retString);
+}
+}
 
 export const createPost = withSiteAuth(async (_: FormData, site: Site) => {
   const session = await getSession();

@@ -3,7 +3,8 @@ import prisma from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import Posts from "@/components/posts";
 import CreatePostButton from "@/components/create-post-button";
-
+import CreateInterviewButton from "@/components/create-interview-button";
+import NewInterviewModal from "@/components/modal/new-interview";
 
 export default async function SitePosts({
   params,
@@ -34,7 +35,7 @@ export default async function SitePosts({
       <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
         <div className="flex flex-col items-center space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0">
           <h1 className="w-60 truncate font-cal text-xl font-bold dark:text-white sm:w-auto sm:text-3xl">
-            All Posts for {data.name}
+            All Interviews for {data.name}
           </h1>
           <a
             href={
@@ -49,7 +50,9 @@ export default async function SitePosts({
             {url} ↗
           </a>
         </div>
-        <CreatePostButton />
+        <CreateInterviewButton userid={session.user.id}>
+          <NewInterviewModal />
+        </CreateInterviewButton>
       </div>
       <Posts siteId={decodeURIComponent(params.id)} />
     </>
